@@ -1,4 +1,4 @@
-```markdown
+
 # CRM System using Neo4j
 
 This project implements a basic **Customer Relationship Management (CRM)** system using a **Neo4j** graph database with Python. It models customers, products, and purchases as nodes and their interactions as relationships using Neo4j’s graph structure.
