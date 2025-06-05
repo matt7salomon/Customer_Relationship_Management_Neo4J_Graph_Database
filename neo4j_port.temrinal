@@ -1,0 +1,74 @@
+If brew services start neo4j worked but your Python code can’t connect to bolt://localhost:7687, the Neo4j instance might be:
+	•	Running on a different Bolt port
+	•	Not listening on the Bolt port at all
+	•	Using authentication or a different password
+	•	Failing silently due to a config issue
+
+⸻
+
+✅ Steps to Diagnose and Fix It
+
+1. Check Which Port Neo4j Is Using
+
+Run:
+
+lsof -iTCP -sTCP:LISTEN -P | grep neo4j
+
+Look for a line like:
+
+java    12345 username   97u  IPv6 0x...  TCP *:7687 (LISTEN)
+
+If it’s not :7687, update your Python uri:
+
+uri = "bolt://localhost:<correct-port>"
+
+
+⸻
+
+2. Confirm Bolt Is Enabled in the Neo4j Config
+
+Open the config file:
+
+open /opt/homebrew/etc/neo4j/neo4j.conf
+
+Ensure these lines are uncommented and correct:
+
+dbms.connector.bolt.enabled=true
+dbms.connector.bolt.listen_address=:7687
+
+If you change anything, restart:
+
+brew services restart neo4j
+
+
+⸻
+
+3. Confirm Password
+
+Neo4j may ask for a new password on first run. If you haven’t set one or forgot it:
+	•	Visit http://localhost:7474
+	•	Login as neo4j and set a new password
+	•	Then in your Python script:
+
+Neo4j_Pass = "yourpassword"
+
+
+⸻
+
+4. Test Python Connection Separately
+
+Test with this minimal code:
+
+from neo4j import GraphDatabase
+
+uri = "bolt://localhost:7687"
+driver = GraphDatabase.driver(uri, auth=("neo4j", "yourpassword"))
+
+with driver.session() as session:
+    result = session.run("RETURN 1")
+    print(result.single())
+
+
+⸻
+
+Let me know the output of the port check or if you want a script to auto-detect and connect to the correct port.
